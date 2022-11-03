@@ -6,20 +6,17 @@
 body {
   background-image: url(https://wallpapercave.com/wp/wp7117797.jpg);
   background-size: 100vw;
-  padding-top: 50px;
-  display: flex;
-  justify-content: center;
 }
 
-/* ==============================
+/* /* ==============================
 
 /* Player Fighter Options */
 
-#p1-fighter-options {
+/* #p1-fighter-options {
   display: flex;
   width: 50vw;
   color: white;
-}
+} */
 
 /* #p1-container { <-- placeholder
   display: flex;
@@ -29,11 +26,11 @@ body {
   color: white;
 } */
 
-#p2-fighter-options {
+/* #p2-fighter-options {
   display: flex;
   width: 50vw;
   color: white;
-}
+} */
 
 /* #p2-container {
   display: flex;
@@ -43,25 +40,24 @@ body {
   color: white;
 } */
 
-
 /* ==============================
 
 /* Battle Dialog Area */
 
-#battle-dialog {
+/* #battle-dialog {
   display: flex;
   background-color: rgba(19, 58, 53, 0.527);
   width: 30vw;
   height: 70vh;
   color: white;
   justify-content: center;
-}
+} */
 
 /* ==============================
 
 /* button container */
 
-#btn-container {
+/* #btn-container {
   display: flex;
   background-color: black;
   height: 45px;
@@ -69,15 +65,14 @@ body {
 
 /* buttons */
 
-#p1-att-btn {
+/* #p1-att-btn {
   display: flex;
   background-color: rgb(167, 230, 22);
-}
+} */
 
-#p2-att-btn {
+/* #p2-att-btn {
   display: flex;
   background-color: rgb(167, 230, 22);
-}
+} */
 
-
-/* ==============================
+/* ============================== */
