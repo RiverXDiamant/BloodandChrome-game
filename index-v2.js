@@ -25,60 +25,10 @@ console.log(context)
 console.log(canvasEl)
 //   console.log('Document is ready!') // checks to make sure page is loading properly
 
-// ! Start of with just rectangles to learn the functionality between
-// ! those rectangles first, to learn the functionality and the basics behind a fighting game
-
-// ===== Sprite class
-
-// Line-17 - Wrapping arguments in an single object; order does not matter anymore because
-// they are bing passed through as properties within an object
-// ~ cleaner syntax because of the added object destructuring within the constructor function
-
-// == Velocity and Gravity
-// Velocity
-//  - when you have movement a velocity property onto your sprite class
-//  -velocity determines in which direction sprites should be moving
-//    when they are inside of an animation loop
-// ~ Adding velocity and gravity makes sure player and opponent fall to bottom of screen
-
-// Gravity
-//  - acceleration onto our y velocity; over time as long as our object is up in
-//    in the air, it will keep adding a value onto this velocity until it hits the ground
-
-const gravity = 0.2
-class Sprite {
-  constructor({ position, velocity }) {
-    this.position = position
-    this.velocity = velocity
-    this.height = 150
-  }
-  image() {
-    context.fillStyle = 'red'
-    context.fillRect(this.position.x, this.position.y, 50, this.height) //< - ref x, y values in player object
-  }
-  // call image to begin animation
-  startAnimate() {
-    this.image()
-
-    // call startAnimate within the animation loop to initiate
-    this.position.x += this.velocity.x
-    this.position.y += this.velocity.y
-
-    // (this.position) + (this.height) equal to the bottom of a sprite
-    // plus the sprites velocity
-    //! - So if the bottom of the sprite + sprite velocity is greater than or equal to
-    //!   the bottom of the canvas, set velocity to 0 to prevent it from falling down past the canvas
-    if (this.position.y + this.height + this.velocity.y >= canvasEl.height) {
-      this.velocity.y = 0
-    } else {
-      // only adding gravity to y velocity if player/opponent are above the value of canvas height
-      this.velocity.y += gravity
-    }
-  }
-}
+const gravity = 0.7
 
 // storing this.position in an object - can now reference with other objects in Sprite class
-const player = new Sprite({
+const player = new Fighter({
   position: {
     // use {} to make it an object
     x: 0,
@@ -87,6 +37,55 @@ const player = new Sprite({
   velocity: {
     x: 0,
     y: 0
+  },
+  offset: {
+    x: 0,
+    y: 0
+  },
+  imageSrc: '...',
+  framesMax: 8,
+  scale: 2.5,
+  offset: {
+    x: 125,
+    y: 157
+  },
+  sprites: {
+    idle: {
+      imageSrc: '...',
+      framesMax: 8
+    },
+    run: {
+      imageSrc: '...',
+      framesMax: 8
+    },
+    jump: {
+      imageSrc: '...',
+      framesMax: 2
+    },
+    fall: {
+      imageSrc: '...',
+      framesMax: 2
+    },
+    runShoot: {
+      imageSrc: '...',
+      framesMax: 6
+    },
+    takeHit: {
+      imageSrc: '...',
+      framesMax: 4
+    },
+    death: {
+      imageSrc: '...',
+      framesMax: 6
+    }
+  },
+  attackBox: {
+    offset: {
+      x: 100,
+      y: 50
+    },
+    width: 160,
+    height: 50
   }
 })
 
@@ -95,7 +94,7 @@ player.image()
 
 // Opponent
 
-const opponent = new Sprite({
+const opponent = new Fighter({
   position: {
     // use {} to make it an object
     x: 400,
@@ -104,6 +103,56 @@ const opponent = new Sprite({
   velocity: {
     x: 0,
     y: 0
+  },
+  color: 'blue',
+  offset: {
+    x: -50,
+    y: 0
+  },
+  imageSrc: '...',
+  framesMax: 4,
+  scale: 2.5,
+  offset: {
+    x: 215,
+    y: 167
+  },
+  sprites: {
+    idle: {
+      imageSrc: '...',
+      framesMax: 8
+    },
+    run: {
+      imageSrc: '...',
+      framesMax: 8
+    },
+    jump: {
+      imageSrc: '...',
+      framesMax: 2
+    },
+    fall: {
+      imageSrc: '...',
+      framesMax: 2
+    },
+    attack1: {
+      imageSrc: '...',
+      framesMax: 6
+    },
+    takeHit: {
+      imageSrc: '...',
+      framesMax: 4
+    },
+    death: {
+      imageSrc: '...',
+      framesMax: 6
+    }
+  },
+  attackBox: {
+    offset: {
+      x: -170,
+      y: 50
+    },
+    width: 170,
+    height: 50
   }
 })
 
@@ -112,28 +161,177 @@ opponent.image()
 // Animation Loop
 // - selects which function to loop repeatedly, until told to stop
 // - clear canvas for each frame loop to get rid of streak effect
+// - set velocity within animation loop for most accurate movement possible
+
+// Keys
+// - Declares all keys we want to use to control game
+//  ~ add :if: statement to animation function
+
+const keys = {
+  // new object
+  // 'a' moves left
+  a: {
+    // new pressed property
+    pressed: false
+  },
+  // 'd' moves player left
+  d: {
+    pressed: false
+  },
+  ArrowRight: {
+    pressed: false
+  },
+  ArrowLeft: {
+    pressed: false
+  }
+}
+
+decreaseTimer()
 
 function animation() {
   window.requestAnimationFrame(animation)
   //   console.log('go') <-- making sure loop works
   context.fillStyle = 'black' // <-- sprites maintain their color while background clears
   context.fillRect(0, 0, canvasEl.width, canvasEl.height)
+  background.startAnimate()
+  c.fillStyle = 'rgba(255, 255, 255, 0.15)'
+  context.fillRect(0, 0, canvasEl.width, canvasEl.height)
   player.startAnimate()
   opponent.startAnimate()
+
+  player.velocity.x = 0
+  opponent.velocity.x = 0
+
+  // player movement
+
+  if (keys.a.pressed && player.lastKey === 'a') {
+    player.velocity.x = -5
+    player.switchSprite('run')
+  } else if (keys.d.pressed && player.lastKey == 'd') {
+    player.velocity.x = 5
+    player.switchSprite('run')
+  } else {
+    player.switchSprite('idle')
+  }
+
+  // jumping
+  if (opponent.velocity.y < 0) {
+    opponent.switchSprite('jump')
+  } else if (opponent.velocity.y > 0) {
+    opponent.switchSprite('fall')
+  }
+
+  // opponent movement
+  if (keys.ArrowLeft.pressed && opponent.lastKey === 'ArrowLeft') {
+    opponent.velocity.x = -5
+    opponent.switchSprite('run')
+  } else if (keys.ArrowRight.pressed && opponent.lastKey === 'ArrowRight') {
+    opponent.velocity.x = 5
+    opponent.switchSprite('run')
+  } else {
+    opponent.switchSprite('idle')
+  }
+
+  // jumping
+  if (opponent.velocity.y < 0) {
+    opponent.switchSprite('jump')
+  } else if (opponent.velocity.y > 0) {
+    opponent.switchSprite('fall')
+  }
+
+  // detect for collision & opponent gets hit
+  if (
+    rectangularCollision({
+      rectangle1: player,
+      rectangle2: opponent
+    }) &&
+    player.isAttacking &&
+    player.framesCurrent === 4
+  ) {
+    opponent.takeHit()
+    player.isAttacking = false
+
+    gsap.to('#enemyHealth', {
+      width: opponent.health + '%'
+    })
+  }
+
+  // if player misses
+  if (player.isAttacking && player.framesCurrent === 4) {
+    player.isAttacking = false
+  }
+
+  // this is where our player gets hit
+  if (
+    rectangularCollision({
+      rectangle1: opponent,
+      rectangle2: player
+    }) &&
+    opponent.isAttacking &&
+    opponent.framesCurrent === 2
+  ) {
+    player.takeHit()
+    opponent.isAttacking = false
+
+    gsap.to('#playerHealth', {
+      width: player.health + '%'
+    })
+  }
+
+  // if player misses
+  if (opponent.isAttacking && opponent.framesCurrent === 2) {
+    opponent.isAttacking = false
+  }
+
+  // Ends game when health is 0
+  if (opponent.health <= 0 || player.health <= 0) {
+    determineWinner({ player, opponent, timerId })
+  }
 }
 
 animation()
 
 // Event Listeners
-// - keydown: (event) occurs when any key on keyboard is pressed down
+// Listener for keydown: (event) occurs when any key on keyboard is pressed down
 window.addEventListener('keydown', (event) => {
   switch (event.key) {
     // if key = 'key pressed' then call code that moves player
     case 'd':
-      player.velocity.x = 1 // <- moving 1 px for every frame loop
+      keys.d.pressed = true
+      player.lastKey = 'd'
+      //   player.velocity.x = 1 // <- moving 1 px for every frame loop
+      break
+    case 'a':
+      keys.a.pressed = true
+      player.lastKey = 'a'
+      //   player.velocity.x = -1
+      break
+    case '':
+      player.attack()
       break
   }
-  console.log(event) //<-- check keydown event works
+  //   console.log(event) //<-- check keydown event works
+
+  //! Placeholder for adding multiple opponent choices
+  //   if (!opponent.dead) {
+  //     switch (event.key) {
+  //       case 'ArrowRight':
+  //         keys.ArrowRight.pressed = true
+  //         opponent.lastKey = 'ArrowRight'
+  //         break
+  //       case 'ArrowLeft':
+  //         keys.ArrowLeft.pressed = true
+  //         opponent.lastKey = 'ArrowLeft'
+  //         break
+  //       case 'ArrowUp':
+  //         opponent.velocity.y = -20
+  //         break
+  //       case 'ArrowDown':
+  //         opponent.attack()
+
+  //         break
+  //     }
+  //   }
 })
 
 // Listener for a keyup event
@@ -142,8 +340,24 @@ window.addEventListener('keyup', (event) => {
   switch (event.key) {
     // player will stop moving on keyup event
     case 'd':
-      player.velocity.x = 0
+      keys.d.pressed = false
+      //   player.velocity.x = 0
+      break
+    case 'a':
+      keys.a.pressed = false
+      //   player.velocity.x = 0
       break
   }
-  console.log(event) //<-- check keyup event works
+  //   console.log(event) //<-- check keyup event works
+
+  // Opponent keys
+
+  switch (event.keys) {
+    case 'ArrowRight':
+      keys.ArrowRight.pressed = false
+      break
+    case 'ArrowLeft':
+      keys.ArrowLeft.pressed = false
+      break
+  }
 })
