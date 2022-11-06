@@ -4,33 +4,60 @@
 
 // window.onload = function () {
 // }
-const canvasEl = document.querySelector('canvas') // reference to canvas element
 
-const context = canvasEl.getContext('2d')
+const canvas = document.querySelector('canvas')
+const context = canvas.getContext('2d')
+
 // Once you have the canvas context, you can use the canvas api method
 //  you can call to draw a white background ~
 // (context.fillRect) : fillRect takes 4 arguments (x, y, width, height)
 // context.fillRect(0, 0, canvas.width, canvas.height)
 
 // set width and height properties to canvas element
-canvasEl.width = 1024
-canvasEl.height = 576
+canvas.width = 1024
+canvas.height = 576
 // == - best to keep original size dimensions but still scale the canvas style (bounding box)
 // == - actual width and height attributes: change the physical size of the canvas image area
 // == - bounding boc: changes the dimensions of how it is drawn on the page
 // == - can also move hard coded value to an object and replace the values with the object and get same result
+context.fillRect(0, 0, canvas.width, canvas.height)
 
-// checks that variable are created
-console.log(context)
-console.log(canvasEl)
-//   console.log('Document is ready!') // checks to make sure page is loading properly
+// == Velocity and Gravity
+// Velocity
+//  - when you have movement a velocity property onto your sprite class
+//  -velocity determines in which direction sprites should be moving
+//    when they are inside of an animation loop
+// ~ Adding velocity and gravity makes sure player and opponent fall to bottom of screen
+
+// Gravity
+//  - acceleration onto our y velocity; over time as long as our object is up in
+//    in the air, it will keep adding a value onto this velocity until it hits the ground
 
 const gravity = 0.7
 
+// Background
+const background = new Sprite({
+  position: {
+    x: 0,
+    y: 0
+  },
+  imageSrc: './img/sunset.jpg'
+})
+
+const shop = new Sprite({
+  position: {
+    x: 600,
+    y: 128
+  },
+  imageSrc: './img/shop.png',
+  scale: 2.75,
+  framesMax: 6
+})
+
 // storing this.position in an object - can now reference with other objects in Sprite class
 const player = new Fighter({
+  // use {} to make it an object
   position: {
-    // use {} to make it an object
     x: 0,
     y: 0
   },
@@ -42,44 +69,44 @@ const player = new Fighter({
     x: 0,
     y: 0
   },
-  imageSrc: '...',
+  imageSrc: './img/hanako/Idle.png',
   framesMax: 8,
   scale: 2.5,
   offset: {
-    x: 125,
+    x: 215,
     y: 157
   },
   sprites: {
     idle: {
-      imageSrc: '...',
+      imageSrc: './img/hanako/Idle.png',
       framesMax: 8
     },
     run: {
-      imageSrc: '...',
+      imageSrc: './img/hanako/Run.png',
       framesMax: 8
     },
     jump: {
-      imageSrc: '...',
+      imageSrc: './img/hanako/Jump.png',
       framesMax: 2
     },
     fall: {
-      imageSrc: '...',
+      imageSrc: './img/hanako/Fall.png',
       framesMax: 2
     },
-    runShoot: {
-      imageSrc: '...',
+    attack1: {
+      imageSrc: './img/hanako/Attack1.png',
       framesMax: 6
     },
     takeHit: {
-      imageSrc: '...',
+      imageSrc: './img/hanako/Take Hit - white silhouette.png',
       framesMax: 4
     },
     death: {
-      imageSrc: '...',
+      imageSrc: './img/hanako/Death.png',
       framesMax: 6
     }
   },
-  attackBox: {
+  hitbox: {
     offset: {
       x: 100,
       y: 50
@@ -89,14 +116,9 @@ const player = new Fighter({
   }
 })
 
-player.image()
-// console.log(player)
-
-// Opponent
-
 const opponent = new Fighter({
+  // use {} to make it an object
   position: {
-    // use {} to make it an object
     x: 400,
     y: 100
   },
@@ -109,7 +131,7 @@ const opponent = new Fighter({
     x: -50,
     y: 0
   },
-  imageSrc: '...',
+  imageSrc: './img/kiroshi/Idle.png',
   framesMax: 4,
   scale: 2.5,
   offset: {
@@ -118,35 +140,35 @@ const opponent = new Fighter({
   },
   sprites: {
     idle: {
-      imageSrc: '...',
-      framesMax: 8
+      imageSrc: './img/kiroshi/Idle.png',
+      framesMax: 4
     },
     run: {
-      imageSrc: '...',
+      imageSrc: './img/kiroshi/Run.png',
       framesMax: 8
     },
     jump: {
-      imageSrc: '...',
+      imageSrc: './img/kiroshi/Jump.png',
       framesMax: 2
     },
     fall: {
-      imageSrc: '...',
+      imageSrc: './img/kiroshi/Fall.png',
       framesMax: 2
     },
     attack1: {
-      imageSrc: '...',
-      framesMax: 6
-    },
-    takeHit: {
-      imageSrc: '...',
+      imageSrc: './img/kiroshi/Attack1.png',
       framesMax: 4
     },
+    takeHit: {
+      imageSrc: './img/kiroshi/Take hit.png',
+      framesMax: 3
+    },
     death: {
-      imageSrc: '...',
-      framesMax: 6
+      imageSrc: './img/kiroshi/Death.png',
+      framesMax: 7
     }
   },
-  attackBox: {
+  hitbox: {
     offset: {
       x: -170,
       y: 50
@@ -156,12 +178,7 @@ const opponent = new Fighter({
   }
 })
 
-opponent.image()
-
-// Animation Loop
-// - selects which function to loop repeatedly, until told to stop
-// - clear canvas for each frame loop to get rid of streak effect
-// - set velocity within animation loop for most accurate movement possible
+console.log(player)
 
 // Keys
 // - Declares all keys we want to use to control game
@@ -174,8 +191,8 @@ const keys = {
     // new pressed property
     pressed: false
   },
-  // 'd' moves player left
   d: {
+    // 'd' moves player left
     pressed: false
   },
   ArrowRight: {
@@ -188,14 +205,20 @@ const keys = {
 
 decreaseTimer()
 
-function animation() {
-  window.requestAnimationFrame(animation)
+// Animation Loop
+// - selects which function to loop repeatedly, until told to stop
+// - clear canvas for each frame loop to get rid of streak effect
+// - set velocity within animation loop for most accurate movement possible
+
+function animate() {
+  window.requestAnimationFrame(animate)
   //   console.log('go') <-- making sure loop works
   context.fillStyle = 'black' // <-- sprites maintain their color while background clears
-  context.fillRect(0, 0, canvasEl.width, canvasEl.height)
+  context.fillRect(0, 0, canvas.width, canvas.height)
   background.startAnimate()
-  c.fillStyle = 'rgba(255, 255, 255, 0.15)'
-  context.fillRect(0, 0, canvasEl.width, canvasEl.height)
+  shop.startAnimate()
+  context.fillStyle = 'rgba(255, 255, 255, 0.15)'
+  context.fillRect(0, 0, canvas.width, canvas.height)
   player.startAnimate()
   opponent.startAnimate()
 
@@ -207,7 +230,7 @@ function animation() {
   if (keys.a.pressed && player.lastKey === 'a') {
     player.velocity.x = -5
     player.switchSprite('run')
-  } else if (keys.d.pressed && player.lastKey == 'd') {
+  } else if (keys.d.pressed && player.lastKey === 'd') {
     player.velocity.x = 5
     player.switchSprite('run')
   } else {
@@ -215,10 +238,10 @@ function animation() {
   }
 
   // jumping
-  if (opponent.velocity.y < 0) {
-    opponent.switchSprite('jump')
-  } else if (opponent.velocity.y > 0) {
-    opponent.switchSprite('fall')
+  if (player.velocity.y < 0) {
+    player.switchSprite('jump')
+  } else if (player.velocity.y > 0) {
+    player.switchSprite('fall')
   }
 
   // opponent movement
@@ -283,59 +306,61 @@ function animation() {
     opponent.isAttacking = false
   }
 
-  // Ends game when health is 0
+  // end game based on health
   if (opponent.health <= 0 || player.health <= 0) {
     determineWinner({ player, opponent, timerId })
   }
 }
 
-animation()
+animate()
 
 // Event Listeners
 // Listener for keydown: (event) occurs when any key on keyboard is pressed down
 window.addEventListener('keydown', (event) => {
-  switch (event.key) {
-    // if key = 'key pressed' then call code that moves player
-    case 'd':
-      keys.d.pressed = true
-      player.lastKey = 'd'
-      //   player.velocity.x = 1 // <- moving 1 px for every frame loop
-      break
-    case 'a':
-      keys.a.pressed = true
-      player.lastKey = 'a'
-      //   player.velocity.x = -1
-      break
-    case '':
-      player.attack()
-      break
+  if (!player.dead) {
+    switch (event.key) {
+      // if key = 'key pressed' then call code that moves player
+      case 'd':
+        keys.d.pressed = true
+        player.lastKey = 'd'
+        break
+      case 'a':
+        keys.a.pressed = true
+        player.lastKey = 'a'
+        //   player.velocity.x = -1
+        break
+      case 'w':
+        player.velocity.y = -20
+        break
+      case ' ':
+        player.attack()
+        break
+    }
   }
-  //   console.log(event) //<-- check keydown event works
 
-  //! Placeholder for adding multiple opponent choices
-  //   if (!opponent.dead) {
-  //     switch (event.key) {
-  //       case 'ArrowRight':
-  //         keys.ArrowRight.pressed = true
-  //         opponent.lastKey = 'ArrowRight'
-  //         break
-  //       case 'ArrowLeft':
-  //         keys.ArrowLeft.pressed = true
-  //         opponent.lastKey = 'ArrowLeft'
-  //         break
-  //       case 'ArrowUp':
-  //         opponent.velocity.y = -20
-  //         break
-  //       case 'ArrowDown':
-  //         opponent.attack()
+  if (!opponent.dead) {
+    switch (event.key) {
+      case 'ArrowRight':
+        keys.ArrowRight.pressed = true
+        opponent.lastKey = 'ArrowRight'
+        break
+      case 'ArrowLeft':
+        keys.ArrowLeft.pressed = true
+        opponent.lastKey = 'ArrowLeft'
+        break
+      case 'ArrowUp':
+        opponent.velocity.y = -20
+        break
+      case 'ArrowDown':
+        opponent.attack()
 
-  //         break
-  //     }
-  //   }
+        break
+    }
+    //   console.log(event) //<-- check keydown event works
+  }
 })
 
 // Listener for a keyup event
-
 window.addEventListener('keyup', (event) => {
   switch (event.key) {
     // player will stop moving on keyup event
@@ -345,14 +370,12 @@ window.addEventListener('keyup', (event) => {
       break
     case 'a':
       keys.a.pressed = false
-      //   player.velocity.x = 0
       break
   }
   //   console.log(event) //<-- check keyup event works
 
-  // Opponent keys
-
-  switch (event.keys) {
+  // opponent keys
+  switch (event.key) {
     case 'ArrowRight':
       keys.ArrowRight.pressed = false
       break

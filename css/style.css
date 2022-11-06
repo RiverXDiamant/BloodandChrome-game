@@ -1,18 +1,19 @@
-html,
-body {
-  margin: 0;
-  padding: 0;
-  /* height: 100vh; */
+* {
+  box-sizing: border-box;
+  font-family: 'Press Start 2P', cursive;
 }
 
 body {
   display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: black;
 }
-
 canvas {
-  background-color: fuchsia;
-  /* width: 100vw; */
-  object-fit: contain; /* contains the size within its parent keeping the aspect ratio */
+  image-rendering: -moz-crisp-edges;
+  image-rendering: -webkit-crisp-edges;
+
+  object-fit: contain;
 }
 
 /* ============================== */
