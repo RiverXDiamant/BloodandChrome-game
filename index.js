@@ -225,8 +225,9 @@ function animate() {
   player.velocity.x = 0
   opponent.velocity.x = 0
 
-  // player movement
-
+  // player and opponent movement
+  // .lastkey connects to Fighter class
+  // Brings together the animations of all the sprite actions during the movement
   if (keys.a.pressed && player.lastKey === 'a') {
     player.velocity.x = -5
     player.switchSprite('run')
@@ -284,6 +285,10 @@ function animate() {
     player.isAttacking = false
   }
 
+
+  //Game mechanics for attacking; rectangle = player and opponent
+  // - rectangle represents the character, that was made first to make sure velocity, gravity
+  //   and movement are working before replacing the rectangle with sprite images 
   // this is where our player gets hit
   if (
     rectangularCollision({
@@ -306,7 +311,7 @@ function animate() {
     opponent.isAttacking = false
   }
 
-  // end game based on health
+  // end game based on health 
   if (opponent.health <= 0 || player.health <= 0) {
     determineWinner({ player, opponent, timerId })
   }
@@ -355,6 +360,7 @@ window.addEventListener('keydown', (event) => {
         opponent.attack()
 
         break
+        
     }
     //   console.log(event) //<-- check keydown event works
   }
@@ -384,3 +390,4 @@ window.addEventListener('keyup', (event) => {
       break
   }
 })
+

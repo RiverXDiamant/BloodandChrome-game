@@ -1,3 +1,6 @@
+// rectangle1: opponent,
+// rectangle2: player
+
 function rectangularCollision({ rectangle1, rectangle2 }) {
   return (
     rectangle1.hitbox.position.x + rectangle1.hitbox.width >=
@@ -9,6 +12,9 @@ function rectangularCollision({ rectangle1, rectangle2 }) {
   )
 }
 
+
+// Player and Opponent Health Bars
+// Determines winner of round
 function determineWinner({ player, enemy, timerId }) {
   clearTimeout(timerId)
   document.querySelector('#displayText').style.display = 'flex'
@@ -21,6 +27,8 @@ function determineWinner({ player, enemy, timerId }) {
   }
 }
 
+
+// Round Timer
 let timer = 60
 let timerId
 function decreaseTimer() {
@@ -34,3 +42,4 @@ function decreaseTimer() {
     determineWinner({ player, enemy, timerId })
   }
 }
+

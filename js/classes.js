@@ -93,7 +93,7 @@ class Sprite {
     }
   }
 
-  // call image to begin animation
+  // calls the sprites to begin animation
 
   startAnimate() {
     this.spriteImage()
