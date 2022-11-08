@@ -228,6 +228,7 @@ function animate() {
   // player and opponent movement
   // .lastkey connects to Fighter class
   // Brings together the animations of all the sprite actions during the movement
+  // so it overrides other key used for movement
   if (keys.a.pressed && player.lastKey === 'a') {
     player.velocity.x = -5
     player.switchSprite('run')
