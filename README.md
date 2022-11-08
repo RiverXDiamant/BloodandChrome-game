@@ -42,7 +42,7 @@ https://luizmelo.itch.io/martial-hero-2
   ==============
 
 Chris Courses
-https://www.youtube.com/c/ChrisCourses/videos
+https://www.youtube.com/watch?v=vyqbNFMDRGQ&t=2291s
 https://chriscourses.com/courses
 
 shezzor's Dev Corner
